@@ -107,6 +107,11 @@ impl EventProvider for TestEventProvider {
             String::from("Elijah Wood was born"),
             Category::from_primary("Birthday"),
         ));
+        events.push(Event::new_singular(
+            NaiveDate::from_ymd_opt(1302, 3, 11).unwrap(),
+            String::from("Romeo and Juliet's birthday, according to Shakespeare"),
+            Category::from_primary("FunFact"),
+        ));
     }
 }
 

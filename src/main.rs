@@ -6,7 +6,7 @@ use dirs;
 use std::fs;
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 use chrono::Datelike;
 use chrono::Local;
@@ -17,9 +17,18 @@ use today::filters::EventFilter;
 
 use today::events::MonthDay;
 
+#[derive(Subcommand, Debug, Clone)]
+enum Command {
+    ///List all event providers
+    Providers,
+}
+
 #[derive(Parser)]
 #[command(name = "today")]
 struct Args {
+    #[command(subcommand)]
+    cmd: Option<Command>,
+
     #[arg(short, long, help = "Event date in MMDD format")]
     date: Option<String>,
 }
@@ -47,10 +56,19 @@ fn main() {
             println!("Looking for configuration file '{}'", &toml_path.display());
             let config_str = fs::read_to_string(toml_path).expect("existing configuration file");
             let config: Config = toml::from_str(&config_str).expect("valid configuration file");
-            println!("config: {:#?}", config);
-            if let Err(e) = run(&config, &path, &filter) {
-                eprintln!("Error running problem");
-                return;
+            //println!("config: {:#?}", config);
+            match args.cmd {
+                Some(Command::Providers) => {
+                    for provider in &config.providers {
+                        println!("{}", provider.name);
+                    }
+                },
+                _ => {
+                    if let Err(e) = run(&config, &path, &filter) {
+                        eprintln!("Error running program: {}", e);
+                        return;
+                    }
+                }
             }
         }
         None => {

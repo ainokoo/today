@@ -11,3 +11,5 @@ dirs = "6.0.0"
 serde = { version = "1.0.228", features = ["derive"] }
 sqlite = "0.37.0"
 toml = "1.0.6"
+reqwest = { version = "0.13.1", features = ["blocking", "json"] }
+serde_json = "1.0"

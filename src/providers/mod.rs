@@ -5,6 +5,7 @@ pub mod sqlite;
 pub mod textfile;
 pub mod testprovider;
 pub mod csv;
+pub mod web;
 
 pub use testprovider::TestEventProvider;
 

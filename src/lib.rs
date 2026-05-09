@@ -1,6 +1,7 @@
 pub mod events;
 pub mod filters;
 pub mod providers;
+pub mod birthday;
 
 use chrono::Datelike;
 use chrono::Local;
@@ -8,26 +9,28 @@ use chrono::NaiveDate;
 use serde::Deserialize;
 use std::error::Error;
 use std::path::Path;
+use crate::birthday::handle_birthday;
 use crate::events::Event;
 use crate::events::MonthDay;
 use crate::providers::EventProvider;
-use crate::providers::csv::CSVFileProvider;
 use crate::providers::{
     textfile::TextFileProvider,
     sqlite::SQLiteProvider,
+    csv::CSVFileProvider,
+    web::WebProvider
 };
 use crate::filters::EventFilter;
 
 #[derive(Deserialize, Debug)]
 pub struct ProviderConfig {
-    name: String,
-    kind: String,
+    pub name: String,
+    pub kind: String,
     resource: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    providers: Vec<ProviderConfig>,
+    pub providers: Vec<ProviderConfig>,
 }
 fn create_providers(config: &Config, config_path: &Path) -> Vec<Box<dyn EventProvider>> {
     let mut providers: Vec<Box<dyn EventProvider>> = Vec::new();
@@ -46,7 +49,11 @@ fn create_providers(config: &Config, config_path: &Path) -> Vec<Box<dyn EventPro
             "csv" => {
                 let provider = CSVFileProvider::new(&cfg.name, &path);
                 providers.push(Box::new(provider));
-            }
+            },
+            "web" => {
+                let provider = WebProvider::new(&cfg.name, &cfg.resource);
+                providers.push(Box::new(provider));
+            },
             _ => {
                 eprintln!("Unable to make provider: {:?}", cfg);
             }
@@ -55,8 +62,8 @@ fn create_providers(config: &Config, config_path: &Path) -> Vec<Box<dyn EventPro
     providers
 }
 
-pub fn run(config: &Config, config_path: &Path, filter: &EventFilter) 
-        -> Result<(), Box<dyn Error>> {
+pub fn run(config: &Config, config_path: &Path, filter: &EventFilter) -> Result<(), Box<dyn Error>> {
+    handle_birthday();
     let mut events: Vec<Event> = Vec::new();
 
     let today: NaiveDate = Local::now().date_naive();

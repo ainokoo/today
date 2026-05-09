@@ -11,6 +11,7 @@ use std::path::Path;
 use crate::events::Event;
 use crate::events::MonthDay;
 use crate::providers::EventProvider;
+use crate::providers::csv::CSVFileProvider;
 use crate::providers::{
     textfile::TextFileProvider,
     sqlite::SQLiteProvider,
@@ -42,6 +43,10 @@ fn create_providers(config: &Config, config_path: &Path) -> Vec<Box<dyn EventPro
                 let provider = TextFileProvider::new(&cfg.name, &path);
                 providers.push(Box::new(provider));
             },
+            "csv" => {
+                let provider = CSVFileProvider::new(&cfg.name, &path);
+                providers.push(Box::new(provider));
+            }
             _ => {
                 eprintln!("Unable to make provider: {:?}", cfg);
             }

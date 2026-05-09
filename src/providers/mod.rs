@@ -4,6 +4,7 @@ use crate::filters::EventFilter;
 pub mod sqlite;
 pub mod textfile;
 pub mod testprovider;
+pub mod csv;
 
 pub use testprovider::TestEventProvider;
 

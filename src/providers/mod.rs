@@ -2,6 +2,7 @@ use crate::events::Event;
 use crate::filters::EventFilter;
 
 pub mod sqlite;
+pub mod textfile;
 pub mod testprovider;
 
 pub use testprovider::TestEventProvider;

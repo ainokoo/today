@@ -8,13 +8,13 @@ use chrono::NaiveDate;
 use serde::Deserialize;
 use std::error::Error;
 use std::path::Path;
-
 use crate::events::Event;
 use crate::events::MonthDay;
 use crate::providers::EventProvider;
-use crate::providers::TestEventProvider;
-use crate::providers::sqlite::SQLiteProvider;
-
+use crate::providers::{
+    textfile::TextFileProvider,
+    sqlite::SQLiteProvider,
+};
 use crate::filters::EventFilter;
 
 #[derive(Deserialize, Debug)]
@@ -37,16 +37,16 @@ fn create_providers(config: &Config, config_path: &Path) -> Vec<Box<dyn EventPro
             "sqlite" => {
                 let provider = SQLiteProvider::new(&cfg.name, &path);
                 providers.push(Box::new(provider));
-            }
+            },
+            "text" => {
+                let provider = TextFileProvider::new(&cfg.name, &path);
+                providers.push(Box::new(provider));
+            },
             _ => {
                 eprintln!("Unable to make provider: {:?}", cfg);
             }
         }
     }
-
-    let test_provider = TestEventProvider::new();
-    providers.push(Box::new(test_provider));
-
     providers
 }
 

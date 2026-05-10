@@ -1,6 +1,7 @@
 use crate::events::{Category, Event};
 use crate::filters::EventFilter;
 use crate::providers::EventProvider;
+use crate::providers::EventProviderError;
 
 use chrono::NaiveDate;
 
@@ -132,6 +133,12 @@ impl EventProvider for TestEventProvider {
             }
         }
     }
+
+    fn add_event(&self, _event: &Event) -> Result<(), EventProviderError> {
+        Err(EventProviderError::OperationNotSupported)
+    }
+
+    fn is_add_supported(&self) -> bool { false }
 }
 /*
 #[cfg(test)]

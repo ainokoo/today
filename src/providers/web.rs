@@ -1,12 +1,11 @@
 use chrono::{NaiveDate, Local, Datelike};
 use reqwest::{blocking::Client, blocking::Response};
 use serde::Deserialize;
-use serde_json;
 
 use crate::events::MonthDay;
-use crate::filters::EventFilter;
 use crate::{Event, EventProvider};
 use crate::events::Category;
+use crate::providers::EventProviderError;
 pub struct WebProvider {
     name: String,
     url: String,
@@ -34,8 +33,13 @@ impl EventProvider for WebProvider {
     }
 
     fn get_events(&self, filter: &crate::filters::EventFilter, events: &mut Vec<Event>) {
-        let today: NaiveDate = Local::now().date_naive();
-        let month_day = MonthDay::new(today.month(), today.day());
+        let month_day = filter.month_day().unwrap_or(
+            MonthDay::new(
+                Local::now().month(),
+                Local::now().day()
+            )
+        );
+
         let date_parameter = format!(
             "date={:02}-{:02}",
             month_day.month,
@@ -64,4 +68,10 @@ impl EventProvider for WebProvider {
             }
         }
     }
+
+    fn add_event(&self, _event: &Event) -> Result<(), EventProviderError> {
+        Err(EventProviderError::OperationNotSupported)
+    }
+
+    fn is_add_supported(&self) -> bool { false }
 }

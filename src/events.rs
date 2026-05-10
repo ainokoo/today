@@ -74,7 +74,7 @@ pub enum EventKind {
 
 #[derive(Debug)]
 pub struct Event {
-    kind: EventKind,
+    pub kind: EventKind,
     pub description: String,
     pub category: Category,
 }

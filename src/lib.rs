@@ -67,7 +67,7 @@ pub fn run(config: &Config, config_path: &Path, filter: &EventFilter) -> Result<
     let mut events: Vec<Event> = Vec::new();
 
     let today: NaiveDate = Local::now().date_naive();
-    let today_month_day = MonthDay::new(today.month(), today.day());
+    let _today_month_day = MonthDay::new(today.month(), today.day());
 
     let providers = create_providers(config, config_path);
 
@@ -84,8 +84,33 @@ pub fn run(config: &Config, config_path: &Path, filter: &EventFilter) -> Result<
     }
 
     for event in &events {
-        println!("{:?} - {}", event.month_day(), event.description());
+        println!("{:?} - {}, category: {}", event.month_day(), event.description(), event.category());
     }
 
     Ok(())
+}
+
+pub fn add_event(config: &Config, config_path: &Path, provider_name: &str, event: &Event) {
+    let providers = create_providers(config, config_path);
+
+    let mut provider: Option<&dyn EventProvider> = None;
+    for p in &providers {
+        if p.name() == provider_name {
+            provider = Some(p.as_ref());
+            break;
+        }
+    }
+
+    match provider {
+        Some(p) => {
+            if p.is_add_supported() {
+                let _ = p.add_event(event);
+            } else {
+                eprintln!("Adding events is not supported for provider '{}'", p.name());
+            }
+        },
+        None => {
+            eprintln!("Unknown event provider '{}'", provider_name);
+        }
+    }
 }

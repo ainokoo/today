@@ -14,6 +14,8 @@ use chrono::NaiveDate;
 
 use today::filters::FilterBuilder;
 use today::filters::EventFilter;
+use today::add_event;
+use today::events::Event;
 
 use today::events::MonthDay;
 
@@ -21,6 +23,21 @@ use today::events::MonthDay;
 enum Command {
     ///List all event providers
     Providers,
+    /// Adds an event to an event provider
+    Add {
+        #[arg(short, long, help = "Name of event provider")]
+        provider_name: String,
+
+        #[arg(short, long, help = "Date of event. Format: YYYY-MM-DD")]
+        date: String,
+
+        #[arg(short = 'e', long, help = "Description of event")]
+        description: String,
+
+        #[arg(short, long, help = "Category of event. Format: primary[/secondary]")]
+        category: String,
+    }
+
 }
 
 #[derive(Parser)]
@@ -63,6 +80,13 @@ fn main() {
                         println!("{}", provider.name);
                     }
                 },
+                Some(Command::Add { provider_name, date, description, category }) => {
+                    let category = Category::from_str(&category);
+                    let date = chrono::NaiveDate::parse_from_str(&date, "%Y-%m-%d").unwrap();
+                    let event = Event::new_singular(date, description, category);
+
+                    add_event(&config, &path, &provider_name, &event);
+                },
                 _ => {
                     if let Err(e) = run(&config, &path, &filter) {
                         eprintln!("Error running program: {}", e);
@@ -77,6 +101,7 @@ fn main() {
         }
     }
 }
+
 
 fn get_config_path(app_name: &str) -> Option<PathBuf> {
     if let Some(config_dir) = dirs::config_dir() {

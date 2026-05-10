@@ -1,6 +1,8 @@
 use crate::EventProvider;
 use crate::events::{Category, Event};
 use crate::filters::EventFilter;
+use crate::providers::EventProviderError;
+
 use chrono::NaiveDate;
 use sqlite::{Connection, State};
 use std::collections::HashMap;
@@ -64,4 +66,10 @@ impl EventProvider for SQLiteProvider {
             }
         }
     }
+
+        fn add_event(&self, _event: &Event) -> Result<(), EventProviderError> {
+        Err(EventProviderError::OperationNotSupported)
+    }
+
+    fn is_add_supported(&self) -> bool { false }
 }
